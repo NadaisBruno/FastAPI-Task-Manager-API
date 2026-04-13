@@ -95,7 +95,7 @@ def buscar_utilizador_autenticado(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
     except JWTError:
-        raise HTTPException(status_code=401, detail="Token invalido o expirado")
+        raise HTTPException(status_code=401, detail="Token invalido ou expirado")
 
     # subject(sub) é o dono do token
     email = payload.get("sub")

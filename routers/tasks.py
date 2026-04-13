@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from database import get_db
 from schemas.task import CriarTask
 from models.user import User
@@ -13,7 +13,6 @@ from schemas.task import ListaTasks
 router = APIRouter()
 
 
-# endpoint para criar as tarefas
 @router.post("/tasks", response_model=RespostaTask)  # usamos response model para definir o formato de respostas da API garantindo que apenas os campos definidos em Resposta Task sao devolvidos
 def criar_tasks(
         # contem os dados enviados pelo cliente(title e description)
@@ -27,6 +26,8 @@ def criar_tasks(
         title=task.title,
         # descricao da tarefa enviada pelo cliente
         description=task.description,
+        # associamos a tarefa a respetiva categoria
+        category_id=task.category_id,
         # associamos a tarefa ao utilizador autenticado e usamos 'utilizador.id' para garantir que a tarefa pertence a quem fez o pedido
         user_id=utilizador.id
     )
@@ -40,9 +41,12 @@ def criar_tasks(
     # actualiza o objeto nova_task com os dados gerados pela base de dados, por exemplo, ‘id’ e 'created_at'
     db.refresh(nova_task)
 
+    task_db = db.query(Task).options(joinedload(Task.category)).filter(Task.id == nova_task.id).first()
+
+    print(task_db.category)
     # devolvemos a tarefa criada
     # o FastAPI vai converter o objeto Task em JSON automaticamente
-    return nova_task
+    return task_db
 
 
 # endpoint que permite irmos buscar a lista paginada de tarefas associadas ao utilizador autenticado
@@ -63,7 +67,8 @@ def listar_tasks(
     # buscamos todas as tarefas que pertencem ao utilizador autenticado
     # db.query(Task) -> inicia uma consulta a tabela tasks
     # filter(Task.user_id == utilizador.id) -> filtra apenas as tarefas do utilizador com esse ‘id’
-    query = db.query(Task).filter(Task.user_id == utilizador.id)
+    # usamos joinedload para garantir que a category é carregada com a task
+    query = db.query(Task).options(joinedload(Task.category)).filter(Task.user_id == utilizador.id)
 
     # aqui fazemos a contagem de quantas tarefas existem no total usando o count()
     # permite saber quantas páginas existem

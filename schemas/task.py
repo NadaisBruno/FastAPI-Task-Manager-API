@@ -1,13 +1,15 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List  # Optional serve para declarar os campos opcionais
 from datetime import datetime
+from schemas.category import RespostaCategory
 
 
 # schema usado para criar uma tarefa na API
-# apenas inclui title e description porque os restantes campos(id, completed, created_at, user_id) sao definidos pelo backend
+# apenas inclui title, description e category_id porque os restantes campos(id, completed, created_at, user_id) sao definidos pelo backend
 class CriarTask(BaseModel):
     title: str
     description: str
+    category_id: int
 
 
 # schema que devolve os dados da db
@@ -17,6 +19,9 @@ class RespostaTask(BaseModel):
     description: str
     completed: bool
     created_at: datetime
+    category_id: int
+    # devolve o nome da task(por exemplo 'projetos', ou 'lazer', ou 'estudos'
+    category: RespostaCategory
 
     # permite que o Pydantic converta objetos SqlAlchemy em JSON automaticamente
     model_config = ConfigDict(from_attributes=True)
@@ -29,6 +34,7 @@ class ActualizarTask(BaseModel):
     title: Optional[str]
     description: Optional[str]
     completed: Optional[bool]
+    category_id: Optional[int]
 
 
 # schema usdo para devolver uma lista paginada de tarefas que inclui informacoes de paginacao e a lista de tarefas
