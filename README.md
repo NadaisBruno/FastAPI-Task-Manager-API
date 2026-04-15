@@ -1,4 +1,6 @@
-# FastApi Task Manager API
+# FastAPI Task Manager API
+
+**Live API:** [Open Swagger Docs](https://fastapi-task-manager-api-0rqu.onrender.com/docs)
 
 A REST API built with FastAPI that allows users to manage their tasks and associated categories.
 Includes authentication with JWT, task creation, deletion, and pagination as well as category management.
